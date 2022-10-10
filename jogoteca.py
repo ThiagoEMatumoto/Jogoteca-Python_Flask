@@ -31,22 +31,29 @@ def ola():
 
 @app.route('/novo_jogo')
 def novo_jogo():
-    return render_template('novo_jogo.html', titulo='Cadastro de jogos')
+    if 'usuario_logado' not in session or session['usuario_logado'] is None:
+        return redirect('/login?proxima=novo_jogo')
+    else:
+        return render_template('novo_jogo.html', titulo='Cadastro de jogos')
 
 
 @app.route('/criar_jogo', methods=['POST', ])
 def criar_jogo():
-    nome = request.form['nome']
-    empresa = request.form['empresa']
-    console = request.form['console']
-    new_jogo = Jogo(nome, empresa, console)
-    lista.append(new_jogo)
-    return redirect('/')
+    if 'usuario_logado' not in session or session['usuario_logado'] is None:
+        return redirect('/login?proxima=novo')
+    else:
+        nome = request.form['nome']
+        empresa = request.form['empresa']
+        console = request.form['console']
+        new_jogo = Jogo(nome, empresa, console)
+        lista.append(new_jogo)
+        return redirect('/')
 
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    proxima = request.args.get('proxima')
+    return render_template('login.html', proxima=proxima)
 
 
 @app.route('/autenticar', methods=['POST',])
@@ -54,7 +61,8 @@ def autenticar():
     if 'teste' == request.form['senha']:
         session['usuario_logado'] = request.form['usuario']
         flash(session['usuario_logado'] + ' logado com sucesso!')
-        return redirect('/')
+        proxima_pagina = request.form['proxima']
+        return redirect('/{}'.format(proxima_pagina))
     else:
         flash('Usuário não logado.')
         return redirect('/login')
@@ -62,9 +70,12 @@ def autenticar():
 
 @app.route('/logout')
 def logout():
-    session['usuario_logado'] = None
-    flash('Logout realizado com sucesso!')
-    return redirect('/')
+    if 'usuario_logado' not in session:
+        return redirect('/login')
+    else:
+        session['usuario_logado'] = None
+        flash('Logout realizado com sucesso!')
+        return redirect('/')
 
 
 app.run(debug=True)
