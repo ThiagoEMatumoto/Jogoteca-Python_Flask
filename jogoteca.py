@@ -3,17 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = 'alura'
+db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     '{SGBD}://{usuario}:{senha}@{servidor}/{database}'.format(
         SGBD='mysql+mysqlconnector',
         usuario='root',
-        senha='Sky1Thi@goS',
+        senha='Sky1Thi@go',
         servidor='localhost',
         database='jogoteca'
     )
-
-db = SQLAlchemy(app)
 
 
 class Jogos(db.Model):
